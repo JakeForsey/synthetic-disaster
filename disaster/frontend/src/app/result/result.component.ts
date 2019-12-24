@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ResultService } from 'src/app/result/result.service'
 
 @Component({
@@ -11,7 +9,8 @@ import { ResultService } from 'src/app/result/result.service'
 export class ResultComponent implements OnInit {
 
   resultService: ResultService;
-  public result$: Observable<string>;
+  image: any;
+  loadingImage: boolean;
 
   constructor(resultService: ResultService) {
     this.resultService = resultService;
@@ -20,7 +19,25 @@ export class ResultComponent implements OnInit {
   ngOnInit() {
   }
 
+  imageToBlob(image: Blob) {
+     let reader = new FileReader();
+     reader.addEventListener("load", () => {
+        this.image = reader.result;
+     }, false);
+
+     if (image) {
+        reader.readAsDataURL(image);
+     }
+  }
+
   onClick() {
-    this.result$ = this.resultService.getResult()
+      this.loadingImage = true;
+      this.resultService.getImage().subscribe(data => {
+        this.imageToBlob(data);
+        this.loadingImage = false;
+      }, error => {
+        this.loadingImage = false;
+        console.log(error);
+      });
   }
 }
