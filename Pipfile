@@ -10,6 +10,9 @@ flask = "*"
 flask-cors = "*"
 numpy = "*"
 pillow = "*"
+torch = "*"
+torchvision = "*"
+tensorboard = "*"
 
 [requires]
 python_version = "3.7"
