@@ -46,6 +46,25 @@ class XView2Dataset(Dataset):
         "destroyed": (225, 225, 225),
         "un-classified": (255, 255, 255)
     }
+    BACKGROUND_COLOUR_MAPPING = {
+        # Hurricanes
+        'hurricane-michael': (30, 0, 0),
+        'hurricane-matthew': (75, 0, 0),
+        'hurricane-florence': (150, 0, 0),
+        'hurricane-harvey': (225, 0, 0),
+
+        # Fire
+        'socal-fire': (0, 50, 0),
+        'santa-rosa-wildfire': (0, 205, 0),
+
+        # Other
+        'guatemala-volcano': (0, 0, 30),
+        'palu-tsunami': (0, 0, 75),
+        'midwest-flooding': (0, 0, 150),
+        'mexico-earthquake': (0, 0, 225),
+
+        None: (0, 0, 0)
+    }
     RAW_HEIGHT, RAW_WIDTH = 1024, 1024
 
     def __init__(self, directory: Path, regenerate_cache: bool, *args, **kwargs):
@@ -93,6 +112,7 @@ class XView2Dataset(Dataset):
     def cache_label_image(self, image_path: Path):
         with self.label_path(image_path).open() as f:
             label_data = json.load(f)
+            label_data["scene"] = str(image_path).split("_")
 
         label_image = self.create_label_image(label_data)
 
@@ -101,7 +121,15 @@ class XView2Dataset(Dataset):
     @staticmethod
     def create_label_image(label_data: dict) -> Image:
         label_image = Image.new('RGB', (XView2Dataset.RAW_HEIGHT, XView2Dataset.RAW_WIDTH), 0)
-
+        ImageDraw.Draw(label_image).polygon(
+            [
+                (0, 0),
+                (XView2Dataset.RAW_HEIGHT, 0),
+                (XView2Dataset.RAW_HEIGHT, XView2Dataset.RAW_WIDTH),
+                (0, XView2Dataset.RAW_WIDTH)
+            ],
+            XView2Dataset.BACKGROUND_COLOUR_MAPPING[label_data["scene"]]
+        )
         for building in label_data["features"]["xy"]:
             x, y = wkt.loads(building["wkt"]).exterior.coords.xy
             p = list(zip(x, y))

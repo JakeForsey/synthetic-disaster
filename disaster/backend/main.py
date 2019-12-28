@@ -18,7 +18,7 @@ app = Flask(__name__)
 CORS(app)
 generator = Generator()
 generator.load_state_dict(
-    torch.load('checkpoints/pix2pix_generator_1.pth', map_location=torch.device('cpu'))
+    torch.load('checkpoints/pix2pix_generator_20.pth', map_location=torch.device('cpu'))
 )
 generator.eval()
 
@@ -36,7 +36,10 @@ def min_max(image):
 @app.route("/generate")
 def generate():
     # TODO create label_image from parameters
-    label_image = XView2Dataset.create_label_image(json.loads(LABELS_JSON))
+    label_data = json.loads(LABELS_JSON)
+    label_data["scene"] = None
+    label_image = XView2Dataset.create_label_image(label_data)
+
     label_tensor = transforms.RandomCrop(
         (HEIGHT, WIDTH)
     )(label_image)
