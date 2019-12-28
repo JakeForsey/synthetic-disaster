@@ -235,7 +235,7 @@ def main():
 
     checkpoint_handler = ModelCheckpoint(
         "checkpoints/", "pix2pix",
-        n_saved=5, require_empty=False, save_interval=1
+        n_saved=1, require_empty=False, save_interval=1
     )
     trainer.add_event_handler(
         event_name=Events.EPOCH_COMPLETED,
