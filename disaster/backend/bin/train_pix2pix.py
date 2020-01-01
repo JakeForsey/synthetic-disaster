@@ -112,21 +112,21 @@ class XView2Dataset(Dataset):
     def cache_label_image(self, image_path: Path):
         with self.label_path(image_path).open() as f:
             label_data = json.load(f)
-            label_data["scene"] = str(image_path).split("_")
+            label_data["scene"] = self.scene(image_path)
 
-        label_image = self.create_label_image(label_data)
+        label_image = self.create_label_image(label_data, self.RAW_WIDTH, self.RAW_HEIGHT)
 
         label_image.save(self.label_image_path(image_path))
 
     @staticmethod
-    def create_label_image(label_data: dict) -> Image:
-        label_image = Image.new('RGB', (XView2Dataset.RAW_HEIGHT, XView2Dataset.RAW_WIDTH), 0)
+    def create_label_image(label_data: dict, width: int, height: int) -> Image:
+        label_image = Image.new('RGB', (height, width), 0)
         ImageDraw.Draw(label_image).polygon(
             [
                 (0, 0),
-                (XView2Dataset.RAW_HEIGHT, 0),
-                (XView2Dataset.RAW_HEIGHT, XView2Dataset.RAW_WIDTH),
-                (0, XView2Dataset.RAW_WIDTH)
+                (height, 0),
+                (height, width),
+                (0, width)
             ],
             XView2Dataset.BACKGROUND_COLOUR_MAPPING[label_data["scene"]]
         )
@@ -151,6 +151,10 @@ class XView2Dataset(Dataset):
     @staticmethod
     def label_image_path(p: Path) -> Path:
         return Path(str(p).replace("image", "label"))
+
+    @staticmethod
+    def scene(p: Path) -> str:
+        return str(p.name).split("_")[0]
 
 
 def main():

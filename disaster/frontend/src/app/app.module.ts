@@ -5,22 +5,33 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { SketchComponent } from './sketch/sketch.component';
 import { ResultComponent } from './result/result.component';
+import { MapComponent } from './map/map.component';
+import { MapService } from 'src/app/map/map.service';
+import {
+  MatFormFieldModule,
+  MatInputModule,
+  MatSelectModule
+} from '@angular/material';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SketchComponent,
-    ResultComponent
+    ResultComponent,
+    MapComponent,
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    NoopAnimationsModule
+    NoopAnimationsModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    FormsModule
   ],
-  providers: [],
+  providers: [MapService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

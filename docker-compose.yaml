@@ -16,3 +16,5 @@ services:
     image: "backend"
     ports:
       - "6001:6001"
+    volumes:
+      - "/tmp:/tmp"

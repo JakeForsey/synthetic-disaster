@@ -3,4 +3,14 @@
   <img [src]="image">
 
   <button (click)="onClick()">Generate Disaster</button>
+
+  <mat-form-field>
+    <mat-label>Disaster</mat-label>
+    <mat-select [(ngModel)]="selectedScene">
+      <mat-option *ngFor="let scene of scenes" [value]="scene.value">
+        {{scene.viewValue}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
 </div>
