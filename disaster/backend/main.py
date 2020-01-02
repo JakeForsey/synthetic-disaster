@@ -19,9 +19,9 @@ app = Flask(__name__)
 CORS(app)
 generator = Generator()
 generator.load_state_dict(
-    torch.load('checkpoints/archive/pix2pix_generator_15.pth', map_location=torch.device('cpu'))
+    torch.load('checkpoints/archive/pix2pix_generator_115.pth', map_location=torch.device('cpu'))
 )
-generator.eval()
+# Calling generator.eval() breaks the model.
 generator.zero_grad()
 
 TRANSFORMS = transforms.Compose([

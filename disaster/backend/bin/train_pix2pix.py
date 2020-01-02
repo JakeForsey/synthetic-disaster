@@ -174,7 +174,7 @@ def main():
     train_dataset, test_dataset = torch.utils.data.random_split(dataset, [len(dataset) - 10, 10])
 
     # Create a dev train dataset with just 10 samples
-    #train_dataset, _ = torch.utils.data.random_split(train_dataset, [10, len(train_dataset) - 10])
+    # train_dataset, _ = torch.utils.data.random_split(train_dataset, [10, len(train_dataset) - 10])
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=TRAIN_BATCH_SIZE
@@ -265,17 +265,10 @@ def main():
                 global_step=engine.state.epoch
             )
 
-    checkpoint_handler = ModelCheckpoint(
-        "checkpoints/", "pix2pix",
-        n_saved=1, require_empty=False, save_interval=1
-    )
-    trainer.add_event_handler(
-        event_name=Events.EPOCH_COMPLETED,
-        handler=checkpoint_handler,
-        to_save={
-            'generator': generator,
-            'discriminator': discriminator
-        })
+    @trainer.on(Events.EPOCH_COMPLETED)
+    def checkpoint(engine):
+        torch.save(generator.state_dict(), 'generator-latest.pth')
+        torch.save(discriminator.state_dict(), 'discriminator-latest.pth')
 
     timer = Timer(average=True)
     timer.attach(
