@@ -265,10 +265,17 @@ def main():
                 global_step=engine.state.epoch
             )
 
-    @trainer.on(Events.EPOCH_COMPLETED)
-    def checkpoint(engine):
-        torch.save(generator.state_dict(), 'generator-latest.pth')
-        torch.save(discriminator.state_dict(), 'discriminator-latest.pth')
+    checkpoint_handler = ModelCheckpoint(
+        "checkpoints/", "pix2pix",
+        n_saved=1, require_empty=False, save_interval=1
+    )
+    trainer.add_event_handler(
+        event_name=Events.EPOCH_COMPLETED,
+        handler=checkpoint_handler,
+        to_save={
+            'generator': generator,
+            'discriminator': discriminator
+        })
 
     timer = Timer(average=True)
     timer.attach(

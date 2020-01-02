@@ -6,6 +6,8 @@ import OlVectorLayer from 'ol/layer/Vector';
 import OlDraw from 'ol/interaction/Draw';
 import OlModify from 'ol/interaction/Modify';
 import OlSnap from 'ol/interaction/Snap';
+import Select from 'ol/interaction/Select';
+import { click, shiftKeyOnly } from 'ol/events/condition';
 
 import { MapService } from 'src/app/map/map.service';
 
@@ -59,7 +61,14 @@ export class EditService {
     this.draw = new OlDraw({
       source: this.source,
       type: "Polygon",
-      features: this.features
+      features: this.features,
+      condition: function(e) {
+        if (e.pointerEvent.buttons === 1) {
+          return true;
+        } else {
+          return false;
+        }
+      }
     });
 
     this.modify = new OlModify({source: this.source});
@@ -102,7 +111,7 @@ export class EditService {
         {
           properties: {
             feature_type: "building",
-            subtype: "no-damage",
+            subtype: feature.get("subtype"),
             uuid: "asdagagas",
           },
           wkt: this.wktFormat.writeGeometry(

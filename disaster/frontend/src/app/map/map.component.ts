@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import OlMap from 'ol/Map';
+import { shiftKeyOnly } from 'ol/events/condition'
 
 import { MapService } from 'src/app/map/map.service';
 import { BackgroundService } from 'src/app/map/background.service';
@@ -19,6 +20,8 @@ export class MapComponent implements OnInit {
   private backgroundService: BackgroundService;
   private editService: EditService;
 
+  private damageClasses: string[];
+
   constructor(
   	mapService: MapService,
   	backgroundService: BackgroundService,
@@ -31,13 +34,34 @@ export class MapComponent implements OnInit {
   }
 
   ngOnInit() {
-      this.map = new OlMap({
+    let map = new OlMap({
       target: 'map',
       layers: [this.backgroundService.getLayer(), this.editService.getLayer()],
       view: this.mapService.view
     });
     this.editService.getInteractions().forEach( (interaction) => {
-    	this.map.addInteraction(interaction);
+      map.addInteraction(interaction);
     });
+
+    map.on('click', function(event) {
+      if (shiftKeyOnly(event) == true) {
+        let damageClasses = ["no-damage", "minor-damage", "major-damage", "destroyed"]
+        map.forEachFeatureAtPixel(event.pixel, function(feature, layer) {
+          let currentSubtype = feature.get("subtype");
+          if (currentSubtype == undefined) {
+            currentSubtype = "no-damage";
+          }
+          let nextSubtype = damageClasses[damageClasses.indexOf(currentSubtype) + 1]
+
+          console.log(nextSubtype)
+          feature.set("subtype", nextSubtype);
+        });
+      }
+    });
+
+    this.map = map
   }
+  incrementDamage(feature) {
+  }
+
 }
