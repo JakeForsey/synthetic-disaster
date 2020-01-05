@@ -20,8 +20,6 @@ export class MapComponent implements OnInit {
   private backgroundService: BackgroundService;
   private editService: EditService;
 
-  private damageClasses: string[];
-
   constructor(
   	mapService: MapService,
   	backgroundService: BackgroundService,
@@ -39,11 +37,9 @@ export class MapComponent implements OnInit {
       layers: [this.backgroundService.getLayer(), this.editService.getLayer()],
       view: this.mapService.view
     });
-    this.editService.getInteractions().forEach( (interaction) => {
-      map.addInteraction(interaction);
-    });
-
     map.on('click', function(event) {
+      console.log("Chaning damage level.")
+
       if (shiftKeyOnly(event) == true) {
         let damageClasses = ["no-damage", "minor-damage", "major-damage", "destroyed"]
         map.forEachFeatureAtPixel(event.pixel, function(feature, layer) {
@@ -51,17 +47,21 @@ export class MapComponent implements OnInit {
           if (currentSubtype == undefined) {
             currentSubtype = "no-damage";
           }
-          let nextSubtype = damageClasses[damageClasses.indexOf(currentSubtype) + 1]
-
-          console.log(nextSubtype)
+          let nextSubtypeIndex = damageClasses.indexOf(currentSubtype) + 1
+          if (nextSubtypeIndex > damageClasses.length) {
+            nextSubtypeIndex = 0;
+          }
+          let nextSubtype = damageClasses[nextSubtypeIndex]
           feature.set("subtype", nextSubtype);
         });
       }
     });
 
+    let _editService = this.editService;
+    map.on('moveend', function(event) {
+      _editService.getBuildingsForExtent()
+    });
+
     this.map = map
   }
-  incrementDamage(feature) {
-  }
-
 }

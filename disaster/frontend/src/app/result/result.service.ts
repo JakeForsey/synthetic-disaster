@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HttpParams } from "@angular/common/http";
 
-import { map } from 'rxjs/operators';
 import { EditService } from 'src/app/map/edit.service';
 
 @Injectable({

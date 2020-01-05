@@ -14,10 +14,9 @@ export class MapService {
   constructor() {
     this.view = new OlView({
       // GSI office
-      center: fromLonLat([-1.706959, 52.504411]),
+      center: fromLonLat([-1.707, 52.504411]),
       // 0.4 meters per pixel
       resolution: 0.4
     });
   }
-
 }

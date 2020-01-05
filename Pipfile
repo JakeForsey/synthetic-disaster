@@ -17,6 +17,7 @@ pytorch-ignite = "*"
 rasterio = "*"
 shapely = "*"
 matplotlib = "*"
+osmxtract = "*"
 
 [requires]
 python_version = "3.7"

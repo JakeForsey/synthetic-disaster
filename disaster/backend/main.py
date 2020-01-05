@@ -1,11 +1,13 @@
 import io
 from PIL import Image
 import json
-from flask import request
 
+from flask import request
+from flask import jsonify
 from flask_cors import CORS
 from flask import Flask
 from flask import Response
+from osmxtract import overpass
 from werkzeug import FileWrapper
 import torch
 from torchvision import transforms
@@ -18,9 +20,17 @@ from bin.train_pix2pix import HEIGHT, WIDTH
 app = Flask(__name__)
 CORS(app)
 generator = Generator()
-generator.load_state_dict(
-    torch.load('checkpoints/archive/pix2pix_generator_115.pth', map_location=torch.device('cpu'))
-)
+try:
+    # Case inside Docker container
+    generator.load_state_dict(
+        torch.load('checkpoints/archive/pix2pix_generator_115.pth', map_location=torch.device('cpu'))
+    )
+except FileNotFoundError:
+    # Case when invoked with python main.py
+    generator.load_state_dict(
+        torch.load('../../checkpoints/archive/pix2pix_generator_115.pth', map_location=torch.device('cpu'))
+    )
+
 # Calling generator.eval() breaks the model.
 generator.zero_grad()
 
@@ -64,6 +74,36 @@ def generate():
         FileWrapper(image_bytes),
         mimetype="image/jpeg"
     )
+
+
+@app.route("/osm")
+def osm():
+    min_lon = request.args.get("minLon")
+    max_lon = request.args.get("maxLon")
+
+    min_lat = request.args.get("minLat")
+    max_lat = request.args.get("maxLat")
+
+    assert min_lon is not None, "Min longitude is missing."
+    assert max_lon is not None, "Max longitude is missing."
+    assert min_lat is not None, "Min latitude is missing."
+    assert max_lat is not None, "Max latitude is missing."
+
+    assert min_lon > max_lon, "Min longitude is larger than max longitude"
+    assert min_lat < max_lat, "Min latitude is larger than max latitude"
+
+    query = overpass.ql_query(
+        (min_lat, min_lon, max_lat, max_lon),
+        tag="building"
+    )
+    response = overpass.request(query)
+    feature_collection = overpass.as_geojson(response, 'polygon')
+
+    # Write as GeoJSON
+    with open('/tmp/features.geojson', 'w') as f:
+        json.dump(feature_collection, f)
+
+    return jsonify(feature_collection)
 
 
 if __name__ == '__main__':
