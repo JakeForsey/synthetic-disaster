@@ -87,7 +87,7 @@ class XView2Dataset(Dataset):
             }
             for path in list((directory / Path("images")).glob("*.png"))
             for bounds in [self.estimate_image_bounds(path)]
-            if self.sample_has_buildings(path) and bounds is not None
+            if self.label_image_path(path).is_file() or (self.sample_has_buildings(path) and bounds is not None)
         ]
         LOGGER.info("Initialising samples completed.", sample_count=len(self._samples))
 
@@ -223,7 +223,24 @@ class XView2Dataset(Dataset):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("data_directory", type=Path)
+    parser.add_argument("--generator-weights", type=Path)
+    parser.add_argument("--discriminator-weights", type=Path)
+
     args = parser.parse_args()
+
+    generator = Generator(GENERATOR_FILTERS)
+    if args.generator_weights is not None:
+        LOGGER.info(f"Loading generator weights: {args.generator_weights}")
+        generator.load_state_dict(torch.load(args.generator_weights))
+    else:
+        generator.weight_init(mean=0.0, std=0.02)
+
+    discriminator = Discriminator(DISCRIMINATOR_FILTERS)
+    if args.discriminator_weights is not None:
+        LOGGER.info(f"Loading discriminator weights: {args.discriminator_weights}")
+        discriminator.load_state_dict(torch.load(args.discriminator_weights))
+    else:
+        discriminator.weight_init(mean=0.0, std=0.02)
 
     dataset = XView2Dataset(
         args.data_directory,
@@ -240,11 +257,6 @@ def main():
         test_dataset, batch_size=TEST_BATCH_SIZE
     )
 
-    generator = Generator(GENERATOR_FILTERS)
-    discriminator = Discriminator(DISCRIMINATOR_FILTERS)
-
-    generator.weight_init(mean=0.0, std=0.02)
-    discriminator.weight_init(mean=0.0, std=0.02)
     generator.cuda()
     discriminator.cuda()
 
