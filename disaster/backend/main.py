@@ -14,8 +14,9 @@ from torchvision import transforms
 import numpy as np
 
 from pix2pix import Generator
-from bin.train_pix2pix import XView2Dataset
-from bin.train_pix2pix import HEIGHT, WIDTH
+from data import TRANSFORMS
+from data import INPUT_HEIGHT, INPUT_WIDTH
+from data import create_label_image
 
 app = Flask(__name__)
 CORS(app)
@@ -34,11 +35,6 @@ except FileNotFoundError:
 # Calling generator.eval() breaks the model.
 generator.zero_grad()
 
-TRANSFORMS = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
-
 
 def min_max(image):
     return (image - image.min()) / (image.max() - image.min())
@@ -47,10 +43,12 @@ def min_max(image):
 @app.route("/generate")
 def generate():
     label_data = json.loads(request.args.get("layout"))
-    label_image = XView2Dataset.create_label_image(label_data, WIDTH, HEIGHT)
+    bounds = json.loads(request.args.get("bounds"))
+
+    label_image = create_label_image(label_data, INPUT_WIDTH, INPUT_HEIGHT, bounds)
 
     label_tensor = transforms.RandomCrop(
-        (HEIGHT, WIDTH)
+        (INPUT_HEIGHT, INPUT_WIDTH)
     )(label_image)
     label_tensor = TRANSFORMS(label_tensor)
     fake_image = generator(label_tensor.unsqueeze(0)).squeeze()
