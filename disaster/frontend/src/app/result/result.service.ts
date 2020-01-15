@@ -19,13 +19,16 @@ export class ResultService {
       this.editService = editService;
     }
 
-  getImage() {
-    let layout = this.editService.getLayout();
-    layout["scene"] = this.scene;
+  getImage(disaster, minLon, minLat, maxLon, maxLat) {
+    let layout = this.editService.getLayout(disaster);
 
     return this.http.get(
       "http://localhost:6001/generate",
-      { responseType: "blob", params: new HttpParams().set('layout', JSON.stringify(layout)) },
+      {
+        responseType: "blob", params: new HttpParams().set(
+          'layout', JSON.stringify(layout)
+        ).set('minLon', minLon).set('minLat', minLat).set('maxLon', maxLon).set('maxLat', maxLat)
+      },
     );
   }
 

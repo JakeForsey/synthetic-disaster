@@ -24,12 +24,12 @@ generator = Generator()
 try:
     # Case inside Docker container
     generator.load_state_dict(
-        torch.load('checkpoints/archive/pix2pix_generator_115.pth', map_location=torch.device('cpu'))
+        torch.load('checkpoints/archive/pix2pix_osm_generator_7.pth', map_location=torch.device('cpu'))
     )
 except FileNotFoundError:
     # Case when invoked with python main.py
     generator.load_state_dict(
-        torch.load('../../checkpoints/archive/pix2pix_generator_115.pth', map_location=torch.device('cpu'))
+        torch.load('../../checkpoints/archive/pix2pix_osm_generator_7.pth', map_location=torch.device('cpu'))
     )
 
 # Calling generator.eval() breaks the model.
@@ -43,9 +43,16 @@ def min_max(image):
 @app.route("/generate")
 def generate():
     label_data = json.loads(request.args.get("layout"))
-    bounds = json.loads(request.args.get("bounds"))
+    min_lon = float(request.args.get("minLon"))
+    max_lon = float(request.args.get("maxLon"))
 
-    label_image = create_label_image(label_data, INPUT_WIDTH, INPUT_HEIGHT, bounds)
+    min_lat = float(request.args.get("minLat"))
+    max_lat = float(request.args.get("maxLat"))
+
+    assert min_lon < max_lon, "Min longitude is smaller than max longitude"
+    assert min_lat < max_lat, "Min latitude is smaller than max latitude"
+
+    label_image = create_label_image(label_data, INPUT_WIDTH, INPUT_HEIGHT, (min_lon, min_lat, max_lon, max_lat))
 
     label_tensor = transforms.RandomCrop(
         (INPUT_HEIGHT, INPUT_WIDTH)
@@ -105,4 +112,4 @@ def osm():
 
 
 if __name__ == '__main__':
-    app.run("0.0.0.0", port=6001)
+    app.run("0.0.0.0", port=6001, threaded=False)

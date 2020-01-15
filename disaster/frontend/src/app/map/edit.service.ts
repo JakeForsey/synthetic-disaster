@@ -134,7 +134,7 @@ export class EditService {
     });
   }
 
-  public getLayout() {
+  public getLayout(disaster) {
     console.log("Generating scene layout.")
 
     let myfeatures: XView2Feature[] = new Array();
@@ -175,6 +175,6 @@ export class EditService {
       );
     });
 
-    return {features: {xy: myfeatures}, scene: "socal-fire"};
+    return {features: {xy: myfeatures}, metadata: {disaster: disaster}};
   }
 }

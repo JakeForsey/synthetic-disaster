@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ResultService } from 'src/app/result/result.service'
+import { MapService } from 'src/app/map/map.service'
+import { transformExtent } from 'ol/proj';
 
 interface Scene {
   value: string
@@ -13,6 +15,8 @@ interface Scene {
 export class ResultComponent implements OnInit {
 
   resultService: ResultService;
+  mapService: MapService;
+
   image: any;
   loadingImage: boolean;
   scenes: Scene[] = [
@@ -29,8 +33,9 @@ export class ResultComponent implements OnInit {
   ];
   selectedScene: string;
 
-  constructor(resultService: ResultService) {
+  constructor(resultService: ResultService, mapService: MapService) {
     this.resultService = resultService;
+    this.mapService = mapService;
   }
 
   ngOnInit() {
@@ -49,9 +54,15 @@ export class ResultComponent implements OnInit {
 
   onClick() {
       this.loadingImage = true;
-      this.resultService.scene = this.selectedScene;
 
-      this.resultService.getImage().subscribe(data => {
+      let bounds = this.mapService.view.calculateExtent()
+      bounds = transformExtent(bounds, 'EPSG:3857','EPSG:4326');
+      let minLon = bounds[0]
+      let minLat = bounds[1]
+      let maxLon = bounds[2]
+      let maxLat = bounds[3]
+  
+      this.resultService.getImage(this.selectedScene, minLon, minLat, maxLon, maxLat).subscribe(data => {
         this.imageToBlob(data);
         this.loadingImage = false;
       }, error => {
