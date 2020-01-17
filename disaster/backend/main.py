@@ -1,6 +1,7 @@
 import io
 from PIL import Image
 import json
+import traceback
 
 from flask import request
 from flask import jsonify
@@ -36,8 +37,40 @@ except FileNotFoundError:
 generator.zero_grad()
 
 
+class BadRequest(Exception):
+    """API Request was invalid."""
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
+
 def min_max(image):
     return (image - image.min()) / (image.max() - image.min())
+
+
+@app.errorhandler(BadRequest)
+def handle_bad_request(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
+
+@app.errorhandler(Exception)
+def handle_exception(error):
+    print(traceback.format_exc())
+    response = jsonify(traceback.format_exc())
+    response.status_code = 500
+    return response
 
 
 @app.route("/generate")
@@ -49,34 +82,47 @@ def generate():
     min_lat = float(request.args.get("minLat"))
     max_lat = float(request.args.get("maxLat"))
 
-    assert min_lon < max_lon, "Min longitude is smaller than max longitude"
-    assert min_lat < max_lat, "Min latitude is smaller than max latitude"
+    if not label_data:
+        raise BadRequest("'layout' must be provided.")
+    if min_lon > max_lon:
+        raise BadRequest("Min longitude is larger than max longitude.")
+    if min_lat > max_lat:
+        raise BadRequest("Min latitude is larger than max latitude.")
 
-    label_image = create_label_image(label_data, INPUT_WIDTH, INPUT_HEIGHT, (min_lon, min_lat, max_lon, max_lat))
+    label_image = create_label_image(
+        label_data,
+        INPUT_WIDTH, INPUT_HEIGHT,
+        (min_lon, min_lat, max_lon, max_lat)
+    )
 
     label_tensor = transforms.RandomCrop(
         (INPUT_HEIGHT, INPUT_WIDTH)
     )(label_image)
     label_tensor = TRANSFORMS(label_tensor)
-    fake_image = generator(label_tensor.unsqueeze(0)).squeeze()
+    generated_tensor = generator(label_tensor.unsqueeze(0)).squeeze()
 
-    image_array = min_max(
+    generated_array = min_max(
         np.transpose(
-            fake_image.detach().numpy(),
+            generated_tensor.detach().numpy(),
             (1, 2, 0)
         )
     ) * 255
+    generated_image = Image.fromarray(
+        generated_array.astype('uint8')
+    ).convert('RGB')
 
-    image_bytes = io.BytesIO()
-    Image.fromarray(
-        image_array.astype('uint8')
-    ).convert(
-        'RGB'
-    ).save(image_bytes, format='JPEG')
-    image_bytes.seek(0)
+    result_bytes = io.BytesIO()
+    result_image = Image.new('RGB', (INPUT_WIDTH * 2, INPUT_HEIGHT))
+    x_offset = 0
+    for image in [label_image, generated_image]:
+        result_image.paste(image, (x_offset, 0))
+        x_offset += INPUT_WIDTH
+
+    result_image.save(result_bytes, format='JPEG')
+    result_bytes.seek(0)
 
     return Response(
-        FileWrapper(image_bytes),
+        FileWrapper(result_bytes),
         mimetype="image/jpeg"
     )
 
@@ -103,10 +149,6 @@ def osm():
     )
     response = overpass.request(query)
     feature_collection = overpass.as_geojson(response, 'polygon')
-
-    # Write as GeoJSON
-    with open('/tmp/features.geojson', 'w') as f:
-        json.dump(feature_collection, f)
 
     return jsonify(feature_collection)
 
