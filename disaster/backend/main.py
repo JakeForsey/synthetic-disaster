@@ -129,19 +129,16 @@ def generate():
 
 @app.route("/osm")
 def osm():
-    min_lon = request.args.get("minLon")
-    max_lon = request.args.get("maxLon")
+    min_lon = float(request.args.get("minLon"))
+    max_lon = float(request.args.get("maxLon"))
 
-    min_lat = request.args.get("minLat")
-    max_lat = request.args.get("maxLat")
+    min_lat = float(request.args.get("minLat"))
+    max_lat = float(request.args.get("maxLat"))
 
-    assert min_lon is not None, "Min longitude is missing."
-    assert max_lon is not None, "Max longitude is missing."
-    assert min_lat is not None, "Min latitude is missing."
-    assert max_lat is not None, "Max latitude is missing."
-
-    assert min_lon > max_lon, "Min longitude is larger than max longitude"
-    assert min_lat < max_lat, "Min latitude is larger than max latitude"
+    if min_lon > max_lon:
+        raise BadRequest("Min longitude is larger than max longitude.")
+    if min_lat > max_lat:
+        raise BadRequest("Min latitude is larger than max latitude.")
 
     query = overpass.ql_query(
         (min_lat, min_lon, max_lat, max_lon),

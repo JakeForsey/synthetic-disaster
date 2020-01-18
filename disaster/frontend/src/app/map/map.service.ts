@@ -13,10 +13,13 @@ export class MapService {
 
   constructor() {
     this.view = new OlView({
+      projection: "EPSG:4326",
+      center: [-1.707, 52.504411],
+      resolution: 0.000005,
       // GSI office
-      center: fromLonLat([-1.707, 52.504411]),
+      //center: fromLonLat([-1.707, 52.504411]),
       // 0.4 meters per pixel
-      resolution: 0.4
+      //resolution: 0.4
     });
   }
 }

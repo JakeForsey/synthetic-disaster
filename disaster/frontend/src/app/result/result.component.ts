@@ -56,7 +56,7 @@ export class ResultComponent implements OnInit {
       this.loadingImage = true;
 
       let bounds = this.mapService.view.calculateExtent()
-      bounds = transformExtent(bounds, 'EPSG:3857','EPSG:4326');
+      //bounds = transformExtent(bounds, 'EPSG:3857','EPSG:4326');
       let minLon = bounds[0]
       let minLat = bounds[1]
       let maxLon = bounds[2]

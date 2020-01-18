@@ -114,8 +114,18 @@ def create_label_image(
         bounds: Tuple[float, float, float, float]
 ) -> Image:
     # Create a label image based on the OSM data for the bounds.
-    map_aoi = geotiler.Map(extent=bounds, size=(height, width))
+    map_aoi = geotiler.Map(extent=bounds, size=(width * 2, height * 2))
     label_image = geotiler.render_map(map_aoi).convert('RGB')
+
+    # Hack the relevant part of the tile out.
+    left = (map_aoi.extent[0] - bounds[0]) / (map_aoi.extent[0] - map_aoi.extent[2]) * width * 2
+    right = (bounds[2] - map_aoi.extent[2]) / (map_aoi.extent[0] - map_aoi.extent[2]) * width * 2
+
+    top = (map_aoi.extent[1] - bounds[1]) / (map_aoi.extent[1] - map_aoi.extent[3]) * height * 2
+    bottom = (bounds[3] - map_aoi.extent[3]) / (map_aoi.extent[1] - map_aoi.extent[3]) * height * 2
+
+    label_image = label_image.crop(box=(left, top, width * 2 - right, height * 2 - bottom))
+    label_image = label_image.resize((width, height))
 
     # Tint the label image with a colour based on the disaster code.
     background_image = Image.new("RGBA", (width, height))

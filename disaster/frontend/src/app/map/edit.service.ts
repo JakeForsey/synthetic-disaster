@@ -6,9 +6,6 @@ import WKT from 'ol/format/WKT';
 import OlVector from 'ol/source/Vector';
 import OlVectorLayer from 'ol/layer/Vector';
 import { transformExtent } from 'ol/proj';
-import OlDraw from 'ol/interaction/Draw';
-import OlModify from 'ol/interaction/Modify';
-import OlSnap from 'ol/interaction/Snap';
 import GeoJSON from 'ol/format/GeoJSON';
 import { Style, Fill } from 'ol/style';
 import { MapService } from 'src/app/map/map.service';
@@ -40,12 +37,7 @@ export class EditService {
   private source: OlVector;
   private layer: OlVectorLayer;
 
-  private draw: OlDraw;
-  private modify: OlModify;
-  private snap: OlSnap;
-
   private interactions: Array<any>;
-  private features: any[] = [];
 
   private wktFormat: any;
 
@@ -56,7 +48,7 @@ export class EditService {
     this.mapService = mapService;
 
     this.source = new OlVector({});
-    
+
     this.layer = new OlVectorLayer({
       source: this.source,
       style: function(feature, resolution) {
@@ -111,7 +103,7 @@ export class EditService {
 
     console.log("Fetching OSM buildings for map extent.")
     let bounds = this.mapService.view.calculateExtent()
-    bounds = transformExtent(bounds, 'EPSG:3857','EPSG:4326');
+    //bounds = transformExtent(bounds, 'EPSG:3857','EPSG:4326');
     let minLon = bounds[0]
     let minLat = bounds[1]
     let maxLon = bounds[2]
@@ -125,8 +117,8 @@ export class EditService {
     console.log("Adding OSM buildings to the map.")
     osmBuildings.subscribe(geojsonObject => {
       let features = (new GeoJSON()).readFeatures(geojsonObject, {
-        dataProjection : 'EPSG:4326',
-        featureProjection: 'EPSG:3857'
+        //dataProjection : 'EPSG:4326',
+        //featureProjection: 'EPSG:3857'
       });
       this.source.addFeatures(features);
     }, error => {
@@ -151,11 +143,23 @@ export class EditService {
 
       feature.getGeometry().getCoordinates().forEach( (ringCoordinates) => {
         ringCoordinates.forEach( (coordinate) => {
-          let newCoordinate = [
-            Math.abs(coordinate[0] - extent[0]) / widthResolution,
-            Math.abs((Math.abs(coordinate[1] - extent[1]) / heightResolution) - 512)
-          ];
-          coordinates.push(newCoordinate)
+          let lon = coordinate[0]
+          let lat = coordinate[1]
+          let x = Math.abs(coordinate[0] - extent[0]) / widthResolution
+          let y = Math.abs((Math.abs(coordinate[1] - extent[1]) / heightResolution) - 512)
+          coordinates.push([x, y])
+          console.log(lon, lat, extent, x, y)
+          // Check that the coordinate will be inside the extent.
+          // let lonWithinExtent = lon > extent[0] && lon < extent[2]
+          // let latWithinExtent = lat > extent[1] && lat < extent[3]
+          // if (lonWithinExtent && latWithinExtent){
+          //   let newCoordinate = [
+          //     x,
+          //     y
+          //   ];
+          //   console.log(newCoordinate)
+          //   coordinates.push(newCoordinate)
+          // }
         });
       });
       // hard coded single ring polygon
