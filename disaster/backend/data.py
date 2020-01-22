@@ -108,23 +108,27 @@ def estimate_image_bounds(
         return None
 
 
+FUDGE_FACTOR = 1.2
+
 def create_label_image(
         label_data: dict,
         width: int, height: int,
         bounds: Tuple[float, float, float, float]
 ) -> Image:
     # Create a label image based on the OSM data for the bounds.
-    map_aoi = geotiler.Map(extent=bounds, size=(width * 2, height * 2))
+    fudged_width = int(round(width * FUDGE_FACTOR))
+    fudged_height = int(round(height * FUDGE_FACTOR))
+    map_aoi = geotiler.Map(extent=bounds, size=(fudged_width, fudged_height))
     label_image = geotiler.render_map(map_aoi).convert('RGB')
 
     # Hack the relevant part of the tile out.
-    left = (map_aoi.extent[0] - bounds[0]) / (map_aoi.extent[0] - map_aoi.extent[2]) * width * 2
-    right = (bounds[2] - map_aoi.extent[2]) / (map_aoi.extent[0] - map_aoi.extent[2]) * width * 2
+    left = (map_aoi.extent[0] - bounds[0]) / (map_aoi.extent[0] - map_aoi.extent[2]) * fudged_width
+    right = (bounds[2] - map_aoi.extent[2]) / (map_aoi.extent[0] - map_aoi.extent[2]) * fudged_width
 
-    top = (map_aoi.extent[1] - bounds[1]) / (map_aoi.extent[1] - map_aoi.extent[3]) * height * 2
-    bottom = (bounds[3] - map_aoi.extent[3]) / (map_aoi.extent[1] - map_aoi.extent[3]) * height * 2
+    top = (map_aoi.extent[1] - bounds[1]) / (map_aoi.extent[1] - map_aoi.extent[3]) * fudged_height
+    bottom = (bounds[3] - map_aoi.extent[3]) / (map_aoi.extent[1] - map_aoi.extent[3]) * fudged_height
 
-    label_image = label_image.crop(box=(left, top, width * 2 - right, height * 2 - bottom))
+    label_image = label_image.crop(box=(left, top, fudged_width - right, fudged_height - bottom))
     label_image = label_image.resize((width, height))
 
     # Tint the label image with a colour based on the disaster code.
