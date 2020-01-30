@@ -11,7 +11,8 @@ import { MapService } from 'src/app/map/map.service';
 import {
   MatFormFieldModule,
   MatInputModule,
-  MatSelectModule
+  MatSelectModule,
+  MatButtonModule
 } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
@@ -29,6 +30,7 @@ import { FormsModule } from '@angular/forms';
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatButtonModule,
     FormsModule
   ],
   providers: [MapService],

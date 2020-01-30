@@ -30,8 +30,17 @@ export class ResultComponent implements OnInit {
     {value: 'palu-tsunami', viewValue: 'Palu tsunami'},
     {value: 'midwest-flooding', viewValue: 'Midwest flooding'},
     {value: 'mexico-earthquake', viewValue: 'Mexico earthquake'},
+    {value: 'woolsey-fire', viewValue: 'Woolsey fire'},
+    {value: 'pinery-bushfire', viewValue: 'Pinery Bushfire'},
+    {value: 'portugal-wildfire', viewValue: 'Portugal wildfire'},
+    {value: 'nepal-flooding', viewValue: 'Nepal flooding'},
+    {value: 'sunda-tsunami', viewValue: 'Sunda tsunami'},
+    {value: 'lower-puna-volcano', viewValue: 'Lower Puna volcano'},
+    {value: 'moore-tornado', viewValue: 'Moore tornado'},
+    {value: 'joplin-tornado', viewValue: 'Joplin tornado'},
+    {value: 'tuscaloosa-tornado', viewValue: 'Tuscaloosa tornado'},
   ];
-  selectedScene: string;
+  selectedScene: string = "hurricane-michael";
 
   constructor(resultService: ResultService, mapService: MapService) {
     this.resultService = resultService;
@@ -56,7 +65,6 @@ export class ResultComponent implements OnInit {
       this.loadingImage = true;
 
       let bounds = this.mapService.view.calculateExtent()
-      //bounds = transformExtent(bounds, 'EPSG:3857','EPSG:4326');
       let minLon = bounds[0]
       let minLat = bounds[1]
       let maxLon = bounds[2]
