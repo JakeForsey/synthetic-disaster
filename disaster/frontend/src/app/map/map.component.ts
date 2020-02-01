@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import OlMap from 'ol/Map';
 import { shiftKeyOnly } from 'ol/events/condition'
-
+import { defaults } from 'ol/interaction'
 import { MapService } from 'src/app/map/map.service';
 import { BackgroundService } from 'src/app/map/background.service';
 import { EditService } from 'src/app/map/edit.service';
@@ -34,6 +34,8 @@ export class MapComponent implements OnInit {
   ngOnInit() {
     let map = new OlMap({
       target: 'map',
+      controls: [],
+      interactions: defaults({mouseWheelZoom:false, doubleClickZoom: false}),
       layers: [this.backgroundService.getLayer(), this.editService.getLayer()],
       view: this.mapService.view
     });
