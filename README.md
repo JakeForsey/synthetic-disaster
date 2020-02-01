@@ -8,9 +8,9 @@ Generates synthetic satellite images of natural disasters using deep neural netw
 **Prerequisites**
 ---
 
-+ Docker
-+ docker-compose
-+ git lfs
++ [Docker](https://www.docker.com/)
++ [docker-compose](https://docs.docker.com/compose/)
++ [git lfs](https://git-lfs.github.com/)
 
 
 **Installation**
@@ -32,8 +32,16 @@ $ docker-compose up
 ```
 
 
+**Test Samples**
+---
+
+
+TODO
+
+
 **Acknowledgements**
 ---
 
+ + [XView2 data-set](https://xview2.org/dataset)
  + [pix2pix paper](https://arxiv.org/abs/1611.07004)
  + [pix2pix implementation](https://github.com/znxlwm/pytorch-pix2pix)
