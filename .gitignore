@@ -3,5 +3,6 @@ data/
 checkpoints/*
 !checkpoints/archive/pix2pix_generator_1.0.pth
 disaster/backend/tensorboard
+disaster/backend/checkpoints
 disaster/backend/__pycache__
 disaster/backend/bin/__pycache__
