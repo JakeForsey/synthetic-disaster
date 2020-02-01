@@ -25,12 +25,12 @@ generator = Generator()
 try:
     # Case inside Docker container
     generator.load_state_dict(
-        torch.load('checkpoints/archive/pix2pix_osm_generator_7.pth', map_location=torch.device('cpu'))
+        torch.load('checkpoints/archive/pix2pix_generator_1.0.pth', map_location=torch.device('cpu'))
     )
 except FileNotFoundError:
     # Case when invoked with python main.py
     generator.load_state_dict(
-        torch.load('../../checkpoints/archive/pix2pix_osm_generator_7.pth', map_location=torch.device('cpu'))
+        torch.load('../../checkpoints/archive/pix2pix_generator_1.0.pth', map_location=torch.device('cpu'))
     )
 
 # Calling generator.eval() breaks the model.
