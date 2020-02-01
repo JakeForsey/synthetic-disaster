@@ -39,12 +39,12 @@ $ docker-compose up
 | --- | --- | --- |
 
 
-![test sample 1]("img/test_samples/1.png)
-![test sample 2]("img/test_samples/2.png)
-![test sample 3]("img/test_samples/3.png)
-![test sample 4]("img/test_samples/4.png)
-![test sample 5]("img/test_samples/5.png)
-![test sample 6]("img/test_samples/6.png)
+![test sample 1](img/test_samples/1.png)
+![test sample 2](img/test_samples/2.png)
+![test sample 3](img/test_samples/3.png)
+![test sample 4](img/test_samples/4.png)
+![test sample 5](img/test_samples/5.png)
+![test sample 6](img/test_samples/6.png)
 
 **Acknowledgements**
 ---
