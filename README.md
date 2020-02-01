@@ -1,6 +1,6 @@
 ![synthetic-disaster logo](img/logo.png)
 
-`synthetic-disaster` generates satellite images of natural disasters using deep neural networks.
+Generates synthetic satellite images of natural disasters using deep neural networks.
 
 ![demo](img/demo.gif)
 
@@ -30,10 +30,10 @@ $ docker-compose build
 ```
 $ docker-compose up
 ```
-[localhost:4200](http://localhost:4200)
 
 
 **Acknowledgements**
 ---
 
-+ TODO
+ + [pix2pix paper](https://arxiv.org/abs/1611.07004)
+ + [pix2pix implementation](https://github.com/znxlwm/pytorch-pix2pix)
