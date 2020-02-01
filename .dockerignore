@@ -1,2 +1,5 @@
 data/*
 disaster/backend/tensorboard/*
+disaster/backend/checkpoints/*
+disaster/backend/__pycache__
+disaster/backend/bin/__pycache__

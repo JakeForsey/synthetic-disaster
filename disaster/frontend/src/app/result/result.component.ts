@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ResultService } from 'src/app/result/result.service'
 import { MapService } from 'src/app/map/map.service'
-import { transformExtent } from 'ol/proj';
 
 interface Scene {
   value: string
