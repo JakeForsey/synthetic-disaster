@@ -16,7 +16,7 @@ from torch.utils.data import Dataset
 
 from pix2pix import Discriminator
 from pix2pix import Generator
-from data import XView2Dataset
+from data import XView2OsmDataset
 
 LOGGER = structlog.get_logger()
 
@@ -54,7 +54,7 @@ def main():
     else:
         discriminator.weight_init(mean=0.0, std=0.02)
 
-    dataset = XView2Dataset(
+    dataset = XView2OsmDataset(
         args.data_directory,
     )
     train_dataset, test_dataset = torch.utils.data.random_split(dataset, [len(dataset) - 10, 10])

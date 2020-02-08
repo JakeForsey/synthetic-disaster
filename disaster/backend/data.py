@@ -57,7 +57,7 @@ def get_label_path(p: Path) -> Path:
 
 
 def get_label_image_path(p: Path) -> Path:
-    return Path(str(p).replace("images", "labels"))
+    return Path(str(p).replace("images", "osm"))
 
 
 def has_buildings(image_path: Path) -> bool:
@@ -169,7 +169,7 @@ def cache_label_image(image_path: Path, bounds: Tuple[float, float, float, float
     label_image.save(get_label_image_path(image_path))
 
 
-class XView2Dataset(Dataset):
+class XView2OsmDataset(Dataset):
     def __init__(self, directory: Path, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._directory = directory
